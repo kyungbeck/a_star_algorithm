@@ -22,7 +22,9 @@ astar.java USER MANUAL
 
 7. If you enter "quit" at 6, the program terminates.
 
+
 astar.java 사용자 설명서
+================
 
 1. 프로그램 실행한다.
 
