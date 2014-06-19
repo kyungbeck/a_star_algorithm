@@ -1,3 +1,6 @@
+import java.io.*;
+import java.util.Random;
+
 public class astar {
 	public static class Point
 	{
@@ -32,6 +35,7 @@ public class astar {
 		}
 	}
 
+	// Heap으로 바꾸기
 	public static class pQueue
 	{
 		private pQueueNode head = new pQueueNode();
@@ -121,39 +125,86 @@ public class astar {
 
 	public static void main(String args[])
 	{
-		int row = 11;
-		int column = 20;
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int row, column;
+		double possibility;
+		while (true)
+		{
+			try
+			{
+				String input = br.readLine();
+
+				if (input.compareTo("quit") == 0)
+				{
+					System.out.println("Bye");
+					return;
+				}
+
+				String s[] = input.split(" ");
+				if (s.length != 3)
+				{
+					System.out.println("Three inputs must be inserted.");
+					System.out.println("row(int), column(int), possibility of being an obstacle(double)");
+					continue;
+				}
+				else
+				{
+					row = Integer.parseInt(s[0]);
+					column = Integer.parseInt(s[1]);
+					possibility = Double.parseDouble(s[2]);
+					command(row, column, possibility);
+				}
+			}
+			catch (Exception e)
+			{
+				System.out.println("입력이 잘못되었습니다. 오류 : " + e.toString());
+			}
+		}
+	}
+
+	public static void command(int row, int column, double possibility)
+	{
 		int[][] map = new int[row][column];
 
 		int i, j;
-
+		Random r = new Random();
+		int rangeBoonza = (int)(possibility * 10000.0);
+		int ranNum;
+		
+		int obsCount = 0;
+		double obsRate;
 		for (i = 0; i < row; i++)
 		{
 			for (j = 0; j < column; j++)
 			{
-				if (i == 2 && j >= 3)
+				ranNum = r.nextInt(10000);
+				if (ranNum < rangeBoonza)
+				{
 					map[i][j] = 0;
-				else if (i == 5 && j <= 16)
-					map[i][j] = 0;
-				else if (i == 8 && j >= 3)
-					map[i][j] = 0;
+					obsCount++;
+				}
 				else map[i][j] = 1;
 			}
 		}
+		obsRate = (double)obsCount / (double)(row * column);
 
 		Point start = new Point();
 		Point dest = new Point();
 
 		start.x = 0;
-		start.y = 19;
-		dest.x = 10;
-		dest.y = 19;
+		start.y = 0;
+		dest.x = row - 1;
+		dest.y = column - 1;
 
 		map[start.x][start.y] = 2;
 		map[dest.x][dest.y] = 3;
 
+		for (j = 0; j < column + 2; j++)
+			System.out.print('.');
+		System.out.println();
 		for (i = 0; i < row; i++)
 		{
+			System.out.print('|');
 			for (j = 0; j < column; j++)
 			{
 				switch (map[i][j])
@@ -162,21 +213,38 @@ public class astar {
 					System.out.print('@');
 					break;
 				case 1:
-					System.out.print('*');
+					System.out.print(' ');
 					break;
 				case 2:
-					System.out.print('s');
+					System.out.print('S');
 					break;
 				case 3:
-					System.out.print('d');
+					System.out.print('D');
 					break;
 				}
 			}
-			System.out.println();
+			System.out.println('|');
 		}
+		for (j = 0; j < column + 2; j++)
+			System.out.print('\'');
+		
 		System.out.println();
-		System.out.println("========================");
-		System.out.println();
+		System.out.println("Obstacles: " + obsCount + ", Obstacles/Entire Nodes: " + obsRate);
+
+		
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		while (true)
+		{
+			try
+			{
+				br.readLine();
+					break;
+			}
+			catch (Exception e)
+			{
+				System.out.println("입력이 잘못되었습니다. 오류 : " + e.toString());
+			}
+		}
 
 		start.g = 0;
 		start.h = (Math.abs(dest.x - start.x) + Math.abs(dest.y - start.y)) * 10;
@@ -323,6 +391,8 @@ public class astar {
 		if (!pathExist)
 		{
 			System.out.println("No Path Exists.");
+			System.out.println();
+			System.out.println();
 			return;
 		}
 
@@ -334,8 +404,12 @@ public class astar {
 			map[pathFind.x][pathFind.y] = 4;
 		}
 
+		for (j = 0; j < column + 2; j++)
+			System.out.print('.');
+		System.out.println();
 		for (i = 0; i < row; i++)
 		{
+			System.out.print('|');
 			for (j = 0; j < column; j++)
 			{
 				switch (map[i][j])
@@ -344,19 +418,24 @@ public class astar {
 					System.out.print('@');
 					break;
 				case 1:
-					System.out.print('*');
+					System.out.print(' ');
 					break;
 				case 2:
-					System.out.print('s');
+					System.out.print('S');
 					break;
 				case 3:
-					System.out.print('d');
+					System.out.print('D');
 					break;
 				case 4:
 					System.out.print('O');
+					break;
 				}
 			}
-			System.out.println();
+			System.out.println('|');
 		}
+		for (j = 0; j < column + 2; j++)
+			System.out.print('\'');
+		System.out.println();
+		System.out.println();
 	}
 }
