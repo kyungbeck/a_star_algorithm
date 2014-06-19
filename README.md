@@ -21,3 +21,27 @@ astar.java USER MANUAL
 6. You can repeat 2 to 5 with different row, column, and possibility until you enter "quit" at this point.
 
 7. If you enter "quit" at 6, the program terminates.
+
+astar.java 사용자 설명서
+
+1. 프로그램 실행한다.
+
+2. 3개의 값을 입력한다. 3개의 값은 가로, 세로, 그리고 장애물 확률이다.
+
+    가로, 세로, 확률로 각각 (int, int, double)이다.
+    
+    (예) 10 20 0.23
+
+3. 그러면 랜덤한 형식으로 맵이 생성된다.
+
+    생성된 맵은 장매물을 포함하고, 시작점은 (0.0)이고 도착점은 (가로 - 1, 세로 - 1) 이고 4개의 boundary 선이 있다.
+    
+4. 엔터를 누르면
+
+5. 지도에 최단 경로가 나타난다.
+
+    (만일 최단 경로가 없다면, "No Path Exists."가 출력된다.
+    
+6. "quit"를 누르기 전까지 2 ~ 5 단계를 계속 수행 가능하다.
+
+7. "quit"를 입력하면 프로그램은 종료한다.
