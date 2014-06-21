@@ -165,12 +165,13 @@ public class astar {
 	public static void command(int row, int column, double possibility)
 	{
 		int[][] map = new int[row][column];
+		boolean isLarge = (row * column) > 900;
 
 		int i, j;
 		Random r = new Random();
 		int rangeBoonza = (int)(possibility * 10000.0);
 		int ranNum;
-		
+
 		int obsCount = 0;
 		double obsRate;
 		for (i = 0; i < row; i++)
@@ -199,52 +200,59 @@ public class astar {
 		map[start.x][start.y] = 2;
 		map[dest.x][dest.y] = 3;
 
-		for (j = 0; j < column + 2; j++)
-			System.out.print('.');
-		System.out.println();
-		for (i = 0; i < row; i++)
+		if (isLarge)
+			System.out.println("Map (" + row + " * " + column + ") construction complete");
+
+		else
 		{
-			System.out.print('|');
-			for (j = 0; j < column; j++)
+			for (j = 0; j < column + 2; j++)
+				System.out.print('.');
+			System.out.println();
+			for (i = 0; i < row; i++)
 			{
-				switch (map[i][j])
+				System.out.print('|');
+				for (j = 0; j < column; j++)
 				{
-				case 0:
-					System.out.print('@');
-					break;
-				case 1:
-					System.out.print(' ');
-					break;
-				case 2:
-					System.out.print('S');
-					break;
-				case 3:
-					System.out.print('D');
-					break;
+					switch (map[i][j])
+					{
+					case 0:
+						System.out.print('@');
+						break;
+					case 1:
+						System.out.print(' ');
+						break;
+					case 2:
+						System.out.print('S');
+						break;
+					case 3:
+						System.out.print('D');
+						break;
+					}
 				}
+				System.out.println('|');
 			}
-			System.out.println('|');
+			for (j = 0; j < column + 2; j++)
+				System.out.print('\'');
 		}
-		for (j = 0; j < column + 2; j++)
-			System.out.print('\'');
-		
 		System.out.println();
 		System.out.println("Obstacles: " + obsCount + ", Obstacles/Entire Nodes: " + obsRate);
 
-		
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while (true)
 		{
 			try
 			{
 				br.readLine();
-					break;
+				break;
 			}
 			catch (Exception e)
 			{
 				System.out.println("입력이 잘못되었습니다. 오류 : " + e.toString());
 			}
 		}
+
+		long t = System.currentTimeMillis();
 
 		start.g = 0;
 		start.h = (Math.abs(dest.x - start.x) + Math.abs(dest.y - start.y)) * 10;
@@ -255,8 +263,7 @@ public class astar {
 
 		openList.put(start);
 
-		boolean isFound = false;
-		boolean pathExist = true;
+		boolean pathExist = false;
 		Point pathFind = new Point();
 
 		while (true)
@@ -343,13 +350,12 @@ public class astar {
 
 				if (map[searchX][searchY] == 3) // destination
 				{
-					isFound = true;	
+					pathExist = true;	
 					Point tempP = new Point(searchX, searchY);
 					tempP.g = p.g + plusG;
 					tempP.h = 0;
 					tempP.f = tempP.g;
 					tempP.parent = p;
-					//openList.put(tempP);
 					pathFind = tempP;
 					break;
 				}
@@ -378,19 +384,15 @@ public class astar {
 				}
 			}
 
-			if (openList.isEmpty())
-			{
-				pathExist = false;
-				break;
-			}
-
-			if (isFound)
+			if (pathExist || openList.isEmpty())
 				break;
 		}
 
 		if (!pathExist)
 		{
-			System.out.println("No Path Exists.");
+			System.out.println("No path exists.");
+			if (isLarge)
+				System.out.println("A* algorithm took " + (System.currentTimeMillis() - t) + " ms");
 			System.out.println();
 			System.out.println();
 			return;
@@ -404,37 +406,46 @@ public class astar {
 			map[pathFind.x][pathFind.y] = 4;
 		}
 
-		for (j = 0; j < column + 2; j++)
-			System.out.print('.');
-		System.out.println();
-		for (i = 0; i < row; i++)
+		if (isLarge)
 		{
-			System.out.print('|');
-			for (j = 0; j < column; j++)
-			{
-				switch (map[i][j])
-				{
-				case 0:
-					System.out.print('@');
-					break;
-				case 1:
-					System.out.print(' ');
-					break;
-				case 2:
-					System.out.print('S');
-					break;
-				case 3:
-					System.out.print('D');
-					break;
-				case 4:
-					System.out.print('O');
-					break;
-				}
-			}
-			System.out.println('|');
+			System.out.println("Path is found successfully.");
+			System.out.println("A* algorithm took " + (System.currentTimeMillis() - t) + " ms");
 		}
-		for (j = 0; j < column + 2; j++)
-			System.out.print('\'');
+
+		else
+		{
+			for (j = 0; j < column + 2; j++)
+				System.out.print('.');
+			System.out.println();
+			for (i = 0; i < row; i++)
+			{
+				System.out.print('|');
+				for (j = 0; j < column; j++)
+				{
+					switch (map[i][j])
+					{
+					case 0:
+						System.out.print('@');
+						break;
+					case 1:
+						System.out.print(' ');
+						break;
+					case 2:
+						System.out.print('S');
+						break;
+					case 3:
+						System.out.print('D');
+						break;
+					case 4:
+						System.out.print('O');
+						break;
+					}
+				}
+				System.out.println('|');
+			}
+			for (j = 0; j < column + 2; j++)
+				System.out.print('\'');
+		}
 		System.out.println();
 		System.out.println();
 	}
