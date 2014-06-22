@@ -3,15 +3,15 @@ import java.util.Random;
 
 public class astar {
 	public static class Point
-	{
-		public int x;
+	{	// each point of the map
+		public int x;			// location of the point
 		public int y;
 
-		public Point parent;
+		public Point parent;	// 
 
-		public int f;
-		public int g;
-		public int h;
+		public double f;		// f, g, h value
+		public double g;
+		public double h;
 
 		public Point(){}
 
@@ -23,8 +23,8 @@ public class astar {
 	}
 
 	public static class pQueueNode
-	{
-		public Point p = new Point();
+	{	// priority queue's element
+		public Point p = new Point();	// it has a point, next element
 		public pQueueNode next;
 
 		public pQueueNode(){}
@@ -35,18 +35,17 @@ public class astar {
 		}
 	}
 
-	// Heap으로 바꾸기
 	public static class pQueue
-	{
-		private pQueueNode head = new pQueueNode();
+	{	// priority queue of points (priority: f value)
+		private pQueueNode head = new pQueueNode();	// it has one head whose element is null
 
 		public boolean isEmpty()
-		{
+		{	// is this queue empty?
 			return head.next == null;
 		}
 
-		public boolean isContain(int x, int y) // Point (x, y)
-		{
+		public boolean contains(int x, int y)
+		{	// does this queue contain point (x, y)?
 			pQueueNode t = head;
 			while (true)
 			{
@@ -59,8 +58,8 @@ public class astar {
 		}
 
 		public void put(Point p)
-		{
-			if (this.isContain(p.x, p.y))
+		{	// insert point p
+			if (this.contains(p.x, p.y))
 			{
 				System.out.println("ERROR: Point Already Exists in pQueue");
 				return;
@@ -69,7 +68,7 @@ public class astar {
 			pQueueNode t = head;
 			while (true)
 			{
-				if (t.next == null || t.next.p.f > p.f)
+				if (t.next == null || t.next.p.f > p.f) // if reached right location
 				{
 					pQueueNode n = new pQueueNode(p);
 					n.next = t.next;
@@ -81,21 +80,21 @@ public class astar {
 		}
 
 		public Point pop()
-		{
+		{	// pop the first point
 			if (head.next == null)
 				return null;
 			else
 			{
 				Point rp = head.next.p;
-				head.next = head.next.next;
+				head.next = head.next.next;	// delete the return point
 				return rp;
 			}
 		}
 
 		public Point pick(int x, int y)
-		{
+		{	// pick point (x, y)
 			pQueueNode t = head;
-			while (true)
+			while (true)	// search point (x, y)
 			{
 				if (t.next == null)
 					return null;
@@ -108,26 +107,14 @@ public class astar {
 				t = t.next;
 			}
 		}
-
-		public void print()
-		{
-			pQueueNode t = head;
-			while (true)
-			{
-				if (t.next == null)
-					return;
-				t = t.next;
-				Point pp = t.p;
-				System.out.println("(" + pp.x + ", " + pp.y + ") " + pp.f + "=" + pp.g + "+" + pp.h);
-			}
-		}
 	}
 
+	/* main */
 	public static void main(String args[])
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int row, column;
-		double possibility;
+		int row, column;	// length of row of the map, length of column of the map
+		double possibility;	// possibility of that each point is an obstacle 
 		while (true)
 		{
 			try
@@ -172,9 +159,10 @@ public class astar {
 		int rangeBoonza = (int)(possibility * 10000.0);
 		int ranNum;
 
-		int obsCount = 0;
-		double obsRate;
-		for (i = 0; i < row; i++)
+		int obsCount = 0;	// total number of obstacles
+		double obsRate;		// rate of obstacles
+
+		for (i = 0; i < row; i++) // random map construction (0: obstacle, 1: plain)
 		{
 			for (j = 0; j < column; j++)
 			{
@@ -182,29 +170,45 @@ public class astar {
 				if (ranNum < rangeBoonza)
 				{
 					map[i][j] = 0;
-					obsCount++;
+					obsCount++;	// accumulate obsCount
 				}
 				else map[i][j] = 1;
 			}
 		}
-		obsRate = (double)obsCount / (double)(row * column);
 
-		Point start = new Point();
-		Point dest = new Point();
+		Point start = new Point();	// start point
+		Point dest = new Point();	// destination point
 
-		start.x = 0;
-		start.y = 0;
-		dest.x = row - 1;
-		dest.y = column - 1;
+		/* randomly spotting start and destination points */
+		int startRanInt, destRanInt;
+
+		startRanInt = r.nextInt(row * column);
+		while (true)
+		{
+			destRanInt = r.nextInt(row * column);
+			if (startRanInt != destRanInt)
+				break;
+		}
+		start.x = startRanInt / column;
+		start.y = startRanInt % column;
+		dest.x = destRanInt / column;
+		dest.y = destRanInt % column;
+
+		if (map[start.x][start.y] == 0)
+			obsCount--;
+		if (map[dest.x][dest.y] == 0)
+			obsCount--;
 
 		map[start.x][start.y] = 2;
 		map[dest.x][dest.y] = 3;
 
-		if (isLarge)
+		obsRate = (double)obsCount / (double)(row * column);
+
+		if (isLarge)	// if the map is too large to be shown in console
 			System.out.println("Map (" + row + " * " + column + ") construction complete");
 
-		else
-		{
+		else			// else show the entire map information
+		{				// @: obstacle, (blank): plain, S: start, D: destination
 			for (j = 0; j < column + 2; j++)
 				System.out.print('.');
 			System.out.println();
@@ -237,14 +241,23 @@ public class astar {
 		System.out.println();
 		System.out.println("Obstacles: " + obsCount + ", Obstacles/Entire Nodes: " + obsRate);
 
-
+		boolean oneStep = false;	// if '1' entered, show the map step by step
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while (true)
 		{
 			try
 			{
-				br.readLine();
-				break;
+				if (isLarge)	// if the map is large, prohibit showing the map step by step 
+				{
+					br.readLine();
+					break;
+				}
+				else
+				{
+					if (br.readLine().compareTo("1") == 0)
+						oneStep = true;
+					break;
+				}
 			}
 			catch (Exception e)
 			{
@@ -254,8 +267,9 @@ public class astar {
 
 		long t = System.currentTimeMillis();
 
-		start.g = 0;
-		start.h = (Math.abs(dest.x - start.x) + Math.abs(dest.y - start.y)) * 10;
+		/* preprocessing of A* algorithm and start point process*/
+		start.g = 0.0;
+		start.h = (Math.abs(dest.x - start.x) + Math.abs(dest.y - start.y));
 		start.f = start.h;
 
 		pQueue openList = new pQueue();
@@ -266,9 +280,9 @@ public class astar {
 		boolean pathExist = false;
 		Point pathFind = new Point();
 
-		while (true)
+		while (true)	// major loop of A* algorithm
 		{
-			Point p = openList.pop();
+			Point p = openList.pop();	// chosen point
 			if (p == null)
 			{
 				System.out.println("ERROR: Empty pQueue");
@@ -279,10 +293,12 @@ public class astar {
 
 			int x = p.x;
 			int y = p.y;
+			if (map[x][y] != 2)
+				map[x][y] = 5;
 
 			int searchX, searchY;
 
-			int[][] searchID = new int[8][2];
+			int[][] searchID = new int[8][2];	// locations of to-be-checked points
 			searchID[0][0] = x-1;
 			searchID[0][1] = y;
 
@@ -307,16 +323,15 @@ public class astar {
 			searchID[7][0] = x+1;
 			searchID[7][1] = y-1;
 
-
-			for (i = 0; i < 8; i++)
+			for (i = 0; i < 8; i++)	// check each of to-be-checked points
 			{
 				searchX = searchID[i][0];
 				searchY = searchID[i][1];
 
-				if (searchX < 0 || searchY < 0 || searchX >= row || searchY >= column)
+				if (searchX < 0 || searchY < 0 || searchX >= row || searchY >= column)	// is out of bound
 					continue;
 
-				if (map[searchX][searchY] == 0 || closedList.isContain(searchX, searchY))
+				if (map[searchX][searchY] == 0 || closedList.contains(searchX, searchY)) // is obstacle or contained by closedList
 					continue;
 
 				if (i > 3)
@@ -343,49 +358,110 @@ public class astar {
 					}
 				}
 
-				int plusG;
-				if (i < 3)
-					plusG = 10;
-				else plusG = 14;
+				double plusG;	// increasing amount of g value
+				if (i <= 3)
+					plusG = 1.0;
+				else plusG = 1.414;
 
-				if (map[searchX][searchY] == 3) // destination
+				if (map[searchX][searchY] == 3) // is destination
 				{
-					pathExist = true;	
+					pathExist = true;	// mark that found the shortest path
 					Point tempP = new Point(searchX, searchY);
 					tempP.g = p.g + plusG;
-					tempP.h = 0;
+					tempP.h = 0.0;
 					tempP.f = tempP.g;
 					tempP.parent = p;
 					pathFind = tempP;
-					break;
+					break;	// and escape this for loop
 				}
 
-				else if (openList.isContain(searchX, searchY))
+				else if (openList.contains(searchX, searchY))	// is contained by openList
 				{
 					Point tempP = openList.pick(searchX, searchY);
 
 					if (p.g + plusG < tempP.g)
-					{
+					{	// update
 						tempP.g = p.g + plusG;
 						tempP.f = tempP.g + tempP.h;
 						tempP.parent = p;
 						openList.put(tempP);
 					}
 					else openList.put(tempP);
+					map[searchX][searchY] = 6;
 				}
-				else
+
+				else	// is newly detected plain point
 				{
 					Point tempP = new Point(searchX, searchY);
 					tempP.g = p.g + plusG;
-					tempP.h = (Math.abs(dest.x - searchX) + Math.abs(dest.y - searchY)) * 10;
+					tempP.h = (Math.abs(dest.x - searchX) + Math.abs(dest.y - searchY));
 					tempP.f = tempP.g + tempP.h;
 					tempP.parent = p;
 					openList.put(tempP);
+					map[searchX][searchY] = 6;
 				}
 			}
 
-			if (pathExist || openList.isEmpty())
+			if (pathExist || openList.isEmpty())	// pathfinding finished or no path exists
 				break;
+
+			if (oneStep)	// print the map step by step
+			{
+				for (j = 0; j < column + 2; j++)
+					System.out.print('.');
+				System.out.println();
+				for (i = 0; i < row; i++)
+				{
+					System.out.print('|');
+					for (j = 0; j < column; j++)
+					{
+						switch (map[i][j])
+						{
+						case 0:
+							System.out.print('@');
+							break;
+						case 1:
+							System.out.print(' ');
+							break;
+						case 2:
+							System.out.print('S');
+							break;
+						case 3:
+							System.out.print('D');
+							break;
+						case 4:
+							System.out.print('P');
+							break;
+						case 5:
+							System.out.print('C');
+							break;
+						case 6:
+							System.out.print('O');
+							break;
+						}
+					}
+					System.out.println('|');
+				}
+				for (j = 0; j < column + 2; j++)
+					System.out.print('\'');
+				System.out.println();
+
+				BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in));
+				while (true)
+				{
+					try
+					{
+						if (br2.readLine().compareTo("1") == 0)	// enter "1"
+							oneStep = true;
+						else oneStep = false;	// enter any word(inclusive "") that is not "1"
+						break;
+					}
+					catch (Exception e)
+					{
+						System.out.println("입력이 잘못되었습니다. 오류 : " + e.toString());
+					}
+				}
+			}
 		}
 
 		if (!pathExist)
@@ -395,10 +471,11 @@ public class astar {
 				System.out.println("A* algorithm took " + (System.currentTimeMillis() - t) + " ms");
 			System.out.println();
 			System.out.println();
+			System.out.println("===========================================");
 			return;
 		}
 
-		while (true)
+		while (true)	// reversely tracking parent points
 		{
 			pathFind = pathFind.parent;
 			if (pathFind.x == start.x && pathFind.y == start.y)
@@ -406,13 +483,13 @@ public class astar {
 			map[pathFind.x][pathFind.y] = 4;
 		}
 
-		if (isLarge)
+		if (isLarge)	// not show the entire map but notify the execution time
 		{
 			System.out.println("Path is found successfully.");
 			System.out.println("A* algorithm took " + (System.currentTimeMillis() - t) + " ms");
 		}
 
-		else
+		else	// show the entire map, not notify the execution time
 		{
 			for (j = 0; j < column + 2; j++)
 				System.out.print('.');
@@ -428,6 +505,8 @@ public class astar {
 						System.out.print('@');
 						break;
 					case 1:
+					case 5:
+					case 6:
 						System.out.print(' ');
 						break;
 					case 2:
@@ -437,7 +516,7 @@ public class astar {
 						System.out.print('D');
 						break;
 					case 4:
-						System.out.print('O');
+						System.out.print('P');
 						break;
 					}
 				}
@@ -447,6 +526,8 @@ public class astar {
 				System.out.print('\'');
 		}
 		System.out.println();
+		System.out.println("Path finding finished");
 		System.out.println();
+		System.out.println("===========================================");
 	}
 }
